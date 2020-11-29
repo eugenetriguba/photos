@@ -1,0 +1,12 @@
+# Build files / Executables / Qt Generated Files
+/src/build
+*.pro.user*
+*.o
+.qmake.stash
+moc_*
+ui_*
+Makefile
+
+
+# Editors
+/.vscode
