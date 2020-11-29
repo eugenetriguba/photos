@@ -9,14 +9,13 @@ class QLabel;
 class QMenu;
 QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow
-{
+class MainWindow : public QMainWindow {
     Q_OBJECT
 
-public:
+  public:
     MainWindow(QWidget *parent = nullptr);
 
-private:
+  private:
     void createActions();
     void createMenus();
 
@@ -34,7 +33,7 @@ private:
     QAction *aboutQtAction;
     QAction *exitAction;
 
-private slots:
+  private slots:
     void openFile();
     void save();
     void undo();

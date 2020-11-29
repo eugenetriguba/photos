@@ -1,11 +1,11 @@
 #include <QApplication>
-#include <QCommandLineParser>
 #include <QCommandLineOption>
+#include <QCommandLineParser>
 
 #include "windows/MainWindow.hpp"
 
 int main(int argc, char *argv[]) {
-//    Q_INIT_RESOURCE(application);
+    //    Q_INIT_RESOURCE(application);
     QApplication app(argc, argv);
 
     QCoreApplication::setOrganizationName("Eugene Triguba");
@@ -20,9 +20,9 @@ int main(int argc, char *argv[]) {
     parser.process(app);
 
     MainWindow mainWindow;
-//    if (!parser.positionalArguments().isEmpty()) {
-//        mainWindow.loadFile(parser.positionalArguments().first());
-//    }
+    //    if (!parser.positionalArguments().isEmpty()) {
+    //        mainWindow.loadFile(parser.positionalArguments().first());
+    //    }
     mainWindow.show();
 
     return app.exec();

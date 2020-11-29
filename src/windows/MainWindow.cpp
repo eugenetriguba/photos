@@ -1,5 +1,5 @@
-#include <QtWidgets>
 #include "MainWindow.hpp"
+#include <QtWidgets>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     infoLabel = new QLabel(tr("<i>Choose a menu option, or right-click to "
@@ -78,42 +78,26 @@ void MainWindow::createMenus() {
 
 void MainWindow::openFile() {
     QString filepath = QFileDialog::getOpenFileName(this);
-//    if (!filepath.isEmpty()) {
-//        ui->image->LoadImage(filepath);
-//        ui->menuEffects->setEnabled(true);
-//    }
+    //    if (!filepath.isEmpty()) {
+    //        ui->image->LoadImage(filepath);
+    //        ui->menuEffects->setEnabled(true);
+    //    }
     infoLabel->setText(tr("Invoked <b>File|Open</b>"));
 }
 
-void MainWindow::save()
-{
-    infoLabel->setText(tr("Invoked <b>File|Save</b>"));
-}
+void MainWindow::save() { infoLabel->setText(tr("Invoked <b>File|Save</b>")); }
 
-void MainWindow::undo()
-{
-    infoLabel->setText(tr("Invoked <b>Edit|Undo</b>"));
-}
+void MainWindow::undo() { infoLabel->setText(tr("Invoked <b>Edit|Undo</b>")); }
 
-void MainWindow::redo()
-{
-    infoLabel->setText(tr("Invoked <b>Edit|Redo</b>"));
-}
+void MainWindow::redo() { infoLabel->setText(tr("Invoked <b>Edit|Redo</b>")); }
 
-void MainWindow::about()
-{
+void MainWindow::about() {
     infoLabel->setText(tr("Invoked <b>Help|About</b>"));
     QMessageBox::about(this, tr("About Menu"),
-            tr("The <b>Menu</b> example shows how to create "
-               "menu-bar menus and context menus."));
+                       tr("The <b>Menu</b> example shows how to create "
+                          "menu-bar menus and context menus."));
 }
 
-void MainWindow::aboutQt()
-{
-    infoLabel->setText(tr("Invoked <b>Help|About Qt</b>"));
-}
+void MainWindow::aboutQt() { infoLabel->setText(tr("Invoked <b>Help|About Qt</b>")); }
 
-void MainWindow::exit()
-{
-    infoLabel->setText(tr("Invoked <b>File|Exit</b>"));
-}
+void MainWindow::exit() { infoLabel->setText(tr("Invoked <b>File|Exit</b>")); }

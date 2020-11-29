@@ -1,13 +1,11 @@
+#include "QImagePreview.hpp"
 #include <QInputEvent>
 #include <opencv2/core.hpp>
+#include <opencv2/highgui.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
-#include <opencv2/highgui.hpp>
-#include "QImagePreview.hpp"
 
-QImagePreview::QImagePreview(QWidget *parent) : parent(parent) {
-    setMouseTracking(true);
-}
+QImagePreview::QImagePreview(QWidget *parent) : parent(parent) { setMouseTracking(true); }
 
 void QImagePreview::loadImage(const QString &path) {
     imageSource = cv::imread(path.toStdString());
@@ -17,6 +15,7 @@ void QImagePreview::loadImage(const QString &path) {
 }
 
 void QImagePreview::updatePreview() {
-    setPixmap(QPixmap::fromImage(QImage(
-        imageBuffer.data, imageBuffer.cols, imageBuffer.rows, (int)imageBuffer.step, activeFormat)));
+    setPixmap(
+        QPixmap::fromImage(QImage(imageBuffer.data, imageBuffer.cols, imageBuffer.rows,
+                                  (int)imageBuffer.step, activeFormat)));
 }

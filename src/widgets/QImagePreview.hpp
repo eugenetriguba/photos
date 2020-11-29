@@ -5,11 +5,12 @@
 #include <opencv2/core.hpp>
 
 class QImagePreview : public QLabel {
-public:
+  public:
     QImagePreview(QWidget *parent);
     void loadImage(const QString &path);
     void updatePreview();
-private:
+
+  private:
     Q_OBJECT
 
     QWidget *parent;
