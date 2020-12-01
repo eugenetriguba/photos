@@ -25,26 +25,8 @@ This will generate a `build` folder inside of `src`.
 
 ## Running
 
-To run the application, we can run `./src/build/Photos` after we've run the build commands.
-
-## Directory Structure
-
-```
-.
-├── LICENSE                 - Contains the project license
-├── photos.pro              - Contains the project qmake configuration
-├── README.md               - Contains the project's documentation
-├── src                     - Contains the project source code
-│   ├── main.cpp            - Main entry file
-│   ├── windows             - Windows of the application
-│   │   ├── MainWindow.cpp
-│   │   └── MainWindow.hpp
-│   ├── translations        - Translation files
-│   │   └── photos_en_US.ts
-│   └── ui                  - Qt UI files
-│       └── MainWindow.ui
-└── tests
-```
+To run the application, we can run `./src/build/photos` after we've run the build commands.
+This will open the GUI application. Alternatively, we could also give it a file path argument to an image which will then load that image immediately when the application is opened.
 
 ## License
 

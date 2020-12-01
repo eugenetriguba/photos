@@ -9,7 +9,11 @@ QImagePreview::QImagePreview(QWidget *parent) : parent(parent) { setMouseTrackin
 
 void QImagePreview::loadImage(const QString &path) {
     imageSource = cv::imread(path.toStdString());
+
+    // OpenCV uses a BGR color space but Qt uses RGB so we have
+    // to covert here.
     cv::cvtColor(imageSource, imageSource, cv::COLOR_BGR2RGB);
+
     imageBuffer = imageSource.clone();
     activeFormat = QImage::Format_RGB888;
 }

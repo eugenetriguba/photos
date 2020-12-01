@@ -1,45 +1,53 @@
-#ifndef MAINWINDOW_HPP
-#define MAINWINDOW_HPP
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
+#include <QImage>
 #include <QMainWindow>
 
 QT_BEGIN_NAMESPACE
 class QAction;
 class QLabel;
 class QMenu;
+class QScrollArea;
+class QScrollBar;
 QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow {
-    Q_OBJECT
-
   public:
     MainWindow(QWidget *parent = nullptr);
+    bool openFile(const QString &);
+
+    // Slots for handling our application's actions.
+  private slots:
+    void open();
+    void saveAs();
+    void zoomIn();
+    void zoomOut();
+    void normalSize();
+    void fitToWindow();
+    void about();
 
   private:
+    Q_OBJECT
+
     void createActions();
     void createMenus();
+    void updateActions();
+    bool saveFile(const QString &filepath);
+    void setImage(const QImage &newImage);
+    void scaleImage(double factor);
+    void adjustScrollBar(QScrollBar *scrollBar, double factor);
 
-    QMenu *fileMenu;
-    QMenu *editMenu;
-    QMenu *helpMenu;
+    QImage image;
+    QLabel *imageLabel;
+    QScrollArea *scrollArea;
+    double scaleFactor = 1;
 
-    QLabel *infoLabel;
-
-    QAction *openAction;
-    QAction *saveAction;
-    QAction *undoAction;
-    QAction *redoAction;
-    QAction *aboutAction;
-    QAction *aboutQtAction;
-    QAction *exitAction;
-
-  private slots:
-    void openFile();
-    void save();
-    void undo();
-    void redo();
-    void about();
-    void aboutQt();
-    void exit();
+    QAction *saveAsAct;
+    QAction *zoomInAct;
+    QAction *zoomOutAct;
+    QAction *normalSizeAct;
+    QAction *fitToWindowAct;
 };
-#endif // MAINWINDOW_HPP
+
+#endif

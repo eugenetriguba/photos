@@ -1,7 +1,7 @@
 #
 # Specifies the name of the target file for the application.
 #
-TARGET = Photos
+TARGET = photos
 
 #
 # Specifies to Qt to generated the Makefile for
