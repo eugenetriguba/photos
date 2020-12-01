@@ -4,7 +4,7 @@
 
 ## Prerequisites
 
-In order to build this project, you'll need to have Qt 5 and OpenCV 4
+In order to build this project, you'll need to have Qt 5
 installed on your system. Once you've done that, you can use Qt's `qmake`
 tool in order to build the project. `qmake` is a Makefile generation tool,
 similar to a tool like CMake but more Qt specific. Furthermore, `qmake` relies
@@ -32,8 +32,6 @@ This will open the GUI application. Alternatively, we could also give it a file 
 
 This project is licensed under the [MIT](./LICENSE) license.
 
-This project also uses Qt 5 and OpenCV 4. Qt 5 is used under the LGPL
-license and OpenCV is licensed under the 3-clause BSD license for versions
-<= 4.4.0 and the Apache 2 license for versions >= 4.5.0. Neither of these
-projects are included in the source code of this project. It is expected
-that the user has them installed on the given system.
+This project also uses Qt 5. Qt 5 is used under the LGPL license. 
+It is not included in the source code of this project. It is expected
+that the user has it installed on the given system.

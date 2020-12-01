@@ -44,14 +44,12 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
 #
 SOURCES += \
     src/main.cpp \
-    src/windows/MainWindow.cpp \
-    src/widgets/QImagePreview.cpp
+    src/windows/MainWindow.cpp
 
 #
 # Application header files
 #
 HEADERS += \
-    src/widgets/QImagePreview.hpp \
     src/windows/MainWindow.hpp
 
 #
@@ -63,8 +61,8 @@ TRANSLATIONS += \
 #
 # Add OpenCV 4 to the include path and the libs needed.
 #
-INCLUDEPATH += /usr/include/opencv4 /usr/include/opencv4/opencv
-LIBS += -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_imgcodecs
+#INCLUDEPATH += /usr/include/opencv4 /usr/include/opencv4/opencv
+#LIBS += -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_imgcodecs
 
 #
 # Default rules for deployment.
