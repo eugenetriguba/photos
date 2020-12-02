@@ -16,6 +16,8 @@
 #include <QStandardPaths>
 #include <QStatusBar>
 
+QStringList getSupportedMimeTypes(QFileDialog::AcceptMode acceptMode);
+
 /**
  * Sets up the MainWindow.
  *
@@ -185,8 +187,19 @@ static void showImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acc
                                                         : picturesLocations.last());
     }
 
+    QStringList mimeTypeFilters = getSupportedMimeTypes(acceptMode);
+    dialog.setMimeTypeFilters(mimeTypeFilters);
+    dialog.selectMimeTypeFilter("image/jpeg");
+
+    if (acceptMode == QFileDialog::AcceptSave) {
+        dialog.setDefaultSuffix("jpg");
+    }
+}
+
+QStringList getSupportedMimeTypes(QFileDialog::AcceptMode acceptMode) {
     QStringList mimeTypeFilters;
     QByteArrayList supportedMimeTypes;
+
     if (acceptMode == QFileDialog::AcceptOpen) {
         supportedMimeTypes = QImageReader::supportedMimeTypes();
     } else {
@@ -198,12 +211,8 @@ static void showImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acc
         mimeTypeFilters.append(mimeTypeName);
     }
     mimeTypeFilters.sort();
-    dialog.setMimeTypeFilters(mimeTypeFilters);
-    dialog.selectMimeTypeFilter("image/jpeg");
 
-    if (acceptMode == QFileDialog::AcceptSave) {
-        dialog.setDefaultSuffix("jpg");
-    }
+    return mimeTypeFilters;
 }
 
 /**
