@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
 
     if (!commandLineParser.positionalArguments().isEmpty()) {
         bool opened =
-            !MainWindow.openFile(commandLineParser.positionalArguments().front());
+            MainWindow.openFile(commandLineParser.positionalArguments().front());
 
         if (!opened) {
             return -1;
