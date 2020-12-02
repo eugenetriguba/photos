@@ -21,6 +21,7 @@ class MainWindow : public QMainWindow {
   private slots:
     void open();
     void saveAs();
+    void crop();
     void zoomIn();
     void zoomOut();
     void normalSize();
@@ -44,6 +45,7 @@ class MainWindow : public QMainWindow {
     double scaleFactor = 1;
 
     QAction *saveAsAct;
+    QAction *cropAct;
     QAction *zoomInAct;
     QAction *zoomOutAct;
     QAction *normalSizeAct;

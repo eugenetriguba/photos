@@ -55,6 +55,11 @@ void MainWindow::createActions() {
     QAction *exitAct = fileMenu->addAction(tr("E&xit"), this, &QWidget::close);
     exitAct->setShortcut(tr("Ctrl+Q"));
 
+    QMenu *editMenu = menuBar()->addMenu(tr("&Edit"));
+    QAction *cropAct = editMenu->addAction(tr("&Crop"), this, &MainWindow::crop);
+    cropAct->setShortcut(tr("Shift+X"));
+    cropAct->setEnabled(true);
+
     QMenu *viewMenu = menuBar()->addMenu(tr("&View"));
     zoomInAct = viewMenu->addAction(tr("Zoom &In (25%)"), this, &MainWindow::zoomIn);
     zoomInAct->setShortcut(QKeySequence::ZoomIn);
@@ -84,7 +89,7 @@ void MainWindow::createActions() {
  * Args:
  *   filename: path to the image file to open.
  *
- * Returns:v
+ * Returns:
  *   true if we've successfully opened the file up.
  *   false otherwise.
  */
@@ -238,6 +243,8 @@ void MainWindow::saveAs() {
            !saveFile(dialog.selectedFiles().first())) {
     }
 }
+
+void MainWindow::crop() { statusBar()->showMessage(tr("Invoked cropping!")); }
 
 /**
  * Zoom in the image by scaling the image down
