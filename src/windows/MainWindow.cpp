@@ -229,9 +229,11 @@ QStringList getSupportedMimeTypes(QFileDialog::AcceptMode acceptMode) {
         supportedMimeTypes = QImageWriter::supportedMimeTypes();
     }
 
-    for (const QByteArray &mimeTypeName : supportedMimeTypes) {
+    std::for_each(supportedMimeTypes.begin(),
+                  supportedMimeTypes.end(),
+    [&mimeTypeFilters](const QByteArray &mimeTypeName) {
         mimeTypeFilters.append(mimeTypeName);
-    }
+    });
     mimeTypeFilters.sort();
 
     return mimeTypeFilters;
