@@ -18,13 +18,6 @@
 
 QStringList getSupportedMimeTypes(QFileDialog::AcceptMode acceptMode);
 
-/**
- * Sets up the MainWindow.
- *
- * Args:
- *   parent: The parent window for this window.
- *   Defaults to a nullptr for the main window.
- */
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), imageLabel(new QLabel), scrollArea(new QScrollArea) {
     imageLabel->setBackgroundRole(QPalette::Base);
@@ -42,9 +35,35 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 /**
- * Create the menubar and keyboard shortcuts
- * for actions that the application can take.
+ * Reads an image, handles if the image is non-existant with
+ * an error dialog box, updates the application state to that image,
+ * and updates the status bar.
  */
+bool MainWindow::openImage(const QString &filepath) {
+    QImageReader reader(filepath);
+    reader.setAutoTransform(true);
+
+    const QImage image = reader.read();
+    if (image.isNull()) {
+        QMessageBox::information(
+            this, QGuiApplication::applicationDisplayName(),
+            tr("Cannot load %1: %2")
+                .arg(QDir::toNativeSeparators(filepath), reader.errorString()));
+        return false;
+    }
+
+    setImage(image);
+    setWindowFilePath(filepath);
+
+    const QString message = tr("Opened \"%1\", %2x%3")
+                                .arg(QDir::toNativeSeparators(filepath))
+                                .arg(image.width())
+                                .arg(image.height());
+    statusBar()->showMessage(message);
+
+    return true;
+}
+
 void MainWindow::createActions() {
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
     QAction *openAct = fileMenu->addAction(tr("&Open..."), this, &MainWindow::open);
@@ -56,9 +75,9 @@ void MainWindow::createActions() {
     exitAct->setShortcut(tr("Ctrl+Q"));
 
     QMenu *editMenu = menuBar()->addMenu(tr("&Edit"));
-    QAction *cropAct = editMenu->addAction(tr("&Crop"), this, &MainWindow::crop);
+    cropAct = editMenu->addAction(tr("&Crop"), this, &MainWindow::crop);
     cropAct->setShortcut(tr("Shift+X"));
-    cropAct->setEnabled(true);
+    cropAct->setEnabled(false);
 
     QMenu *viewMenu = menuBar()->addMenu(tr("&View"));
     zoomInAct = viewMenu->addAction(tr("Zoom &In (25%)"), this, &MainWindow::zoomIn);
@@ -84,47 +103,20 @@ void MainWindow::createActions() {
 }
 
 /**
- * Opens up a file to view.
+ * Updates the enabled states of actions.
  *
- * Args:
- *   filename: path to the image file to open.
- *
- * Returns:
- *   true if we've successfully opened the file up.
- *   false otherwise.
+ * This is useful for if we, say, click a checkbox
+ * and want that to be updated on the screen so it
+ * shows that it is in the enabled state.
  */
-bool MainWindow::openFile(const QString &fileName) {
-    QImageReader reader(fileName);
-    reader.setAutoTransform(true);
-
-    const QImage image = reader.read();
-    if (image.isNull()) {
-        QMessageBox::information(
-            this, QGuiApplication::applicationDisplayName(),
-            tr("Cannot load %1: %2")
-                .arg(QDir::toNativeSeparators(fileName), reader.errorString()));
-        return false;
-    }
-
-    setImage(image);
-    setWindowFilePath(fileName);
-
-    const QString message = tr("Opened \"%1\", %2x%3, Depth: %4")
-                                .arg(QDir::toNativeSeparators(fileName))
-                                .arg(image.width())
-                                .arg(image.height())
-                                .arg(image.depth());
-    statusBar()->showMessage(message);
-
-    return true;
+void MainWindow::updateActions() {
+    saveAsAct->setEnabled(!image.isNull());
+    cropAct->setEnabled(!image.isNull());
+    zoomInAct->setEnabled(!fitToWindowAct->isChecked());
+    zoomOutAct->setEnabled(!fitToWindowAct->isChecked());
+    normalSizeAct->setEnabled(!fitToWindowAct->isChecked());
 }
 
-/**
- * Set the image for this main window to show.
- *
- * Args:
- *   newImage: the new image to set this window's image to.
- */
 void MainWindow::setImage(const QImage &newImage) {
     image = newImage;
 
@@ -144,19 +136,7 @@ void MainWindow::setImage(const QImage &newImage) {
     }
 }
 
-/**
- * Saves the current image and updates the status bar.
- * If we cannot save the image, an error dialog box
- * is shown.
- *
- * Args:
- *   filepath: The path where to save the image to.
- *
- * Returns:
- *   True if the image was able to be saved at the
- *   specified path; false otherwise.
- */
-bool MainWindow::saveFile(const QString &filepath) {
+bool MainWindow::saveImage(const QString &filepath) {
     QImageWriter writer(filepath);
 
     if (!writer.write(image)) {
@@ -167,10 +147,27 @@ bool MainWindow::saveFile(const QString &filepath) {
         return false;
     }
 
-    const QString message = tr("Saved \"%1\"").arg(QDir::toNativeSeparators(filepath));
+    const QString message = tr("Saved \"%1\"").arg(
+                QDir::toNativeSeparators(filepath));
     statusBar()->showMessage(message);
 
     return true;
+}
+
+void MainWindow::scaleImage(double factor) {
+    scaleFactor *= factor;
+    imageLabel->resize(scaleFactor * imageLabel->pixmap(Qt::ReturnByValue).size());
+
+    adjustScrollBar(scrollArea->horizontalScrollBar(), factor);
+    adjustScrollBar(scrollArea->verticalScrollBar(), factor);
+
+    zoomInAct->setEnabled(scaleFactor < 3.0);
+    zoomOutAct->setEnabled(scaleFactor > 0.333);
+}
+
+void MainWindow::adjustScrollBar(QScrollBar *scrollBar, double factor) {
+    scrollBar->setValue(
+        int(factor * scrollBar->value() + ((factor - 1) * scrollBar->pageStep() / 2)));
 }
 
 /**
@@ -182,14 +179,22 @@ bool MainWindow::saveFile(const QString &filepath) {
  *   we are opening a file rather than for writing out our file.
  */
 static void showImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acceptMode) {
+    // We make this bit of memory static here so
+    // we know whether or not it is the first dialog
+    // box in subsequent invocations.
     static bool firstDialog = true;
 
     if (firstDialog) {
         firstDialog = false;
-        const QStringList picturesLocations =
-            QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
-        dialog.setDirectory(picturesLocations.isEmpty() ? QDir::currentPath()
-                                                        : picturesLocations.last());
+
+        const QStringList picturesDir = QStandardPaths::standardLocations(
+                    QStandardPaths::PicturesLocation);
+
+        if (picturesDir.isEmpty()) {
+            dialog.setDirectory(QDir::currentPath());
+        } else {
+            dialog.setDirectory(picturesDir.last());
+        }
     }
 
     QStringList mimeTypeFilters = getSupportedMimeTypes(acceptMode);
@@ -201,6 +206,18 @@ static void showImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acc
     }
 }
 
+/**
+ * Private helper function for retrieving the supported
+ * mime types that we can accept for a given accept mode
+ * in a file dialog.
+ *
+ * Args:
+ *   acceptMode: The accept mode for the file dialog such as
+ *   if we are saving a file or opening a file.
+ *
+ * Returns:
+ *   A QStringList of supported mime types for the given mode.
+ */
 QStringList getSupportedMimeTypes(QFileDialog::AcceptMode acceptMode) {
     QStringList mimeTypeFilters;
     QByteArrayList supportedMimeTypes;
@@ -221,55 +238,46 @@ QStringList getSupportedMimeTypes(QFileDialog::AcceptMode acceptMode) {
 }
 
 /**
- * Handles the open() signal to create the open file dialog.
+ *
+ * "Slot" Action Handlers
+ *
  */
+
 void MainWindow::open() {
     QFileDialog dialog(this, tr("Open File"));
     showImageFileDialog(dialog, QFileDialog::AcceptOpen);
 
     while (dialog.exec() == QDialog::Accepted &&
-           !openFile(dialog.selectedFiles().first())) {
+           !openImage(dialog.selectedFiles().first())) {
     }
 }
 
-/**
- * Handles the saveAs() signal to create the saving dialog.
- */
 void MainWindow::saveAs() {
     QFileDialog dialog(this, tr("Save File As"));
     showImageFileDialog(dialog, QFileDialog::AcceptSave);
 
     while (dialog.exec() == QDialog::Accepted &&
-           !saveFile(dialog.selectedFiles().first())) {
+           !saveImage(dialog.selectedFiles().first())) {
     }
 }
 
-void MainWindow::crop() { statusBar()->showMessage(tr("Invoked cropping!")); }
+void MainWindow::crop() {
+    statusBar()->showMessage(tr("Invoked cropping!"));
+}
 
-/**
- * Zoom in the image by scaling the image down
- * and resizing it for our window.
- */
-void MainWindow::zoomIn() { scaleImage(1.25); }
+void MainWindow::zoomIn() {
+    scaleImage(1.25);
+}
 
-/**
- * Zoom out of the image by scaling the image up
- * and resizing it for our window.
- */
-void MainWindow::zoomOut() { scaleImage(0.75); }
+void MainWindow::zoomOut() {
+    scaleImage(0.75);
+}
 
-/**
- * Reset the image scale to the default.
- */
 void MainWindow::normalSize() {
     imageLabel->adjustSize();
     scaleFactor = 1.0;
 }
 
-/**
- * Scale the image to fit the window if checked.
- * Otherwise, reset back to its normal size.
- */
 void MainWindow::fitToWindow() {
     bool fitToWindow = fitToWindowAct->isChecked();
     scrollArea->setWidgetResizable(fitToWindow);
@@ -281,57 +289,8 @@ void MainWindow::fitToWindow() {
     updateActions();
 }
 
-/**
- * Show a popup for the about information for this application.
- */
 void MainWindow::about() {
     QMessageBox::about(this, tr("About Photos"),
                        tr("<p>The Photos application allows us to view images on our "
                           "computer and do light edits on them.</p>"));
-}
-
-/**
- * Updates the actions for the current state.
- *
- * This is useful for if we, say, check a checkbox
- * and want that to be updated on the screen.
- */
-void MainWindow::updateActions() {
-    saveAsAct->setEnabled(!image.isNull());
-    zoomInAct->setEnabled(!fitToWindowAct->isChecked());
-    zoomOutAct->setEnabled(!fitToWindowAct->isChecked());
-    normalSizeAct->setEnabled(!fitToWindowAct->isChecked());
-}
-
-/**
- * Scale the image by a certain factor.
- * This is what allows us to zoom in and out
- * of an image.
- *
- * Args:
- *   factor: The amount to scale the image by.
- */
-void MainWindow::scaleImage(double factor) {
-    scaleFactor *= factor;
-    imageLabel->resize(scaleFactor * imageLabel->pixmap(Qt::ReturnByValue).size());
-
-    adjustScrollBar(scrollArea->horizontalScrollBar(), factor);
-    adjustScrollBar(scrollArea->verticalScrollBar(), factor);
-
-    zoomInAct->setEnabled(scaleFactor < 3.0);
-    zoomOutAct->setEnabled(scaleFactor > 0.333);
-}
-
-/**
- * Adjust the scroll bar by a certain factor. This is
- * used for after we scale an image so the scroll bar
- * is approxriately sized.
- *
- * Args:
- *   scrollBar: The scroll bar to adjust.
- *   factor: The factor to adjust the scroll bar by.
- */
-void MainWindow::adjustScrollBar(QScrollBar *scrollBar, double factor) {
-    scrollBar->setValue(
-        int(factor * scrollBar->value() + ((factor - 1) * scrollBar->pageStep() / 2)));
 }

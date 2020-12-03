@@ -22,25 +22,25 @@
  */
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
-    QGuiApplication::setApplicationDisplayName(MainWindow::tr("Photos"));
+    QGuiApplication::setApplicationDisplayName(QObject::tr("Photos"));
 
-    MainWindow MainWindow;
+    MainWindow mainWindow;
     QCommandLineParser commandLineParser;
     commandLineParser.addHelpOption();
     commandLineParser.addPositionalArgument(
-        MainWindow::tr("[filepath]"),
-        MainWindow::tr("The filepath to the image to view."));
+        QObject::tr("[filepath]"),
+        QObject::tr("The filepath to the image to view."));
     commandLineParser.process(QCoreApplication::arguments());
 
     if (!commandLineParser.positionalArguments().isEmpty()) {
         bool opened =
-            MainWindow.openFile(commandLineParser.positionalArguments().front());
+            mainWindow.openImage(commandLineParser.positionalArguments().front());
 
         if (!opened) {
             return -1;
         }
     }
 
-    MainWindow.show();
+    mainWindow.show();
     return app.exec();
 }
