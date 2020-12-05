@@ -17,6 +17,7 @@
 #include <QStatusBar>
 
 QStringList getSupportedMimeTypes(QFileDialog::AcceptMode acceptMode);
+static void showImageFileDialog(QFileDialog &dialog, QFileDialog::AcceptMode acceptMode);
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), imageLabel(new QLabel), scrollArea(new QScrollArea) {
